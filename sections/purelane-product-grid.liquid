@@ -1,0 +1,393 @@
+{% liquid
+  assign collection = section.settings.collection
+  assign heading = section.settings.heading
+  assign kicker = section.settings.kicker
+%}
+
+<section id="shop" class="plgrid">
+  <div class="plgrid__inner">
+
+    <div class="plgrid__head">
+      {% if kicker != blank %}
+        <p class="plgrid__kicker">{{ kicker }}</p>
+      {% endif %}
+      {% if heading != blank %}
+        <h2 class="plgrid__heading">{{ heading }}</h2>
+      {% endif %}
+      <div class="plgrid__rule" aria-hidden="true">
+        <span></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21c0-6.5 3.5-11 8-12.5C20 15 16.5 20 12 21Z"/>
+          <path d="M12 21C12 14.5 8.5 10 4 8.5 4 15 7.5 20 12 21Z"/>
+        </svg>
+        <span></span>
+      </div>
+    </div>
+
+    {% if collection != blank %}
+      <div class="plgrid__grid">
+        {% for product in collection.products limit: section.settings.products_count %}
+          <div class="plgrid__card">
+            <a class="plgrid__card-link" href="{{ product.url }}">
+
+              <div class="plgrid__card-image">
+                {% if product.metafields.custom.badge != blank %}
+                  <span class="plgrid__pill">{{ product.metafields.custom.badge }}</span>
+                {% elsif product.tags contains 'best-seller' %}
+                  <span class="plgrid__pill">Best Seller</span>
+                {% elsif product.tags contains 'new' %}
+                  <span class="plgrid__pill">New</span>
+                {% elsif product.tags contains 'top-rated' %}
+                  <span class="plgrid__pill">Top Rated</span>
+                {% endif %}
+
+                {% if product.featured_image %}
+                  {{ product.featured_image | image_url: width: 400 | image_tag:
+                    loading: 'lazy',
+                    alt: product.featured_image.alt | default: product.title,
+                    class: 'plgrid__img',
+                    widths: '200, 300, 400',
+                    sizes: '(min-width: 860px) 25vw, 50vw'
+                  }}
+                {% else %}
+                  <div class="plgrid__img-placeholder"></div>
+                {% endif %}
+              </div>
+
+              <div class="plgrid__card-body">
+                <h3 class="plgrid__card-title">{{ product.title }}</h3>
+
+                {% if product.metafields.reviews.rating.value != blank %}
+                  <div class="plgrid__rating">
+                    <span class="plgrid__stars" aria-hidden="true">★★★★★</span>
+                    <b>{{ product.metafields.reviews.rating.value }}</b>
+                    <span>· {{ product.metafields.reviews.rating_count.value }} reviews</span>
+                  </div>
+                {% endif %}
+
+                <div class="plgrid__price">
+                  <strong>{{ product.price | money_without_trailing_zeros }}</strong>
+                  {% if product.compare_at_price > product.price %}
+                    <s>{{ product.compare_at_price | money_without_trailing_zeros }}</s>
+                    <em>{{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price }}% off</em>
+                  {% endif %}
+                </div>
+
+                <button
+                  class="plgrid__atc"
+                  data-product-id="{{ product.variants.first.id }}"
+                  aria-label="Add {{ product.title }} to cart"
+                >
+                  Add to cart
+                </button>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      {% if request.design_mode %}
+        <p class="plgrid__empty">Select a collection in the section settings.</p>
+      {% endif %}
+    {% endif %}
+
+  </div>
+</section>
+
+<style>
+.plgrid {
+  padding: 80px 0;
+  background: var(--pl-bg, #EAF7EE);
+}
+
+.plgrid__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 18px;
+}
+
+.plgrid__head {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.plgrid__kicker {
+  margin: 0 0 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #B8701C;
+}
+
+.plgrid__heading {
+  margin: 0;
+  font-family: Outfit, system-ui, sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: #17102B;
+  line-height: 1;
+}
+
+.plgrid__rule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(260px, 100%);
+  margin: 18px auto 0;
+  color: #B8701C;
+}
+
+.plgrid__rule span {
+  flex: 1;
+  height: 1px;
+  background: rgba(75,58,143,0.22);
+}
+
+.plgrid__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (min-width: 860px) {
+  .plgrid__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.plgrid__card {
+  border-radius: 20px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(75,58,143,0.1);
+  box-shadow: 0 4px 24px rgba(0,64,55,0.07);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  transition: transform 300ms ease, box-shadow 300ms ease;
+}
+
+.plgrid__card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(0,64,55,0.13);
+}
+
+.plgrid__card-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.plgrid__card-image {
+  position: relative;
+  height: 180px;
+  background: linear-gradient(160deg, rgba(236,230,247,0.4), rgba(75,58,143,0.12));
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.plgrid__pill {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(23,16,43,0.55);
+  border: 1px solid rgba(184,112,28,0.32);
+  color: #B8701C;
+}
+
+.plgrid__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 12px;
+}
+
+.plgrid__img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, rgba(107,85,184,0.3), rgba(107,85,184,0.1));
+}
+
+.plgrid__card-body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.plgrid__card-title {
+  margin: 0 0 6px;
+  font-family: Outfit, system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #17102B;
+  line-height: 1.2;
+}
+
+.plgrid__rating {
+  font-size: 0.7rem;
+  color: #241A3D;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.plgrid__stars { color: #B8701C; }
+
+.plgrid__rating b { color: #B8701C; font-weight: 700; }
+
+.plgrid__price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 12px;
+  margin-top: auto;
+}
+
+.plgrid__price strong {
+  font-family: Outfit, system-ui, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #17102B;
+}
+
+.plgrid__price s {
+  font-size: 0.75rem;
+  color: #241A3D;
+  opacity: 0.6;
+}
+
+.plgrid__price em {
+  font-style: normal;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #B8701C;
+}
+
+.plgrid__atc {
+  width: 100%;
+  padding: 10px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(17,16,43,0.18);
+  background: transparent;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #17102B;
+  cursor: pointer;
+  transition: background 200ms ease, color 200ms ease;
+}
+
+.plgrid__atc:hover {
+  background: #17102B;
+  color: #fff;
+}
+
+.plgrid__atc:focus-visible {
+  outline: 2px solid #B8701C;
+  outline-offset: 3px;
+}
+
+.plgrid__empty {
+  text-align: center;
+  color: #241A3D;
+  opacity: 0.5;
+  padding: 40px;
+  border: 1px dashed rgba(75,58,143,0.2);
+  border-radius: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plgrid__card { transition: none; }
+}
+</style>
+
+<script>
+(function() {
+  var buttons = document.querySelectorAll('.plgrid__atc');
+  buttons.forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      var id = btn.dataset.productId;
+      if (!id) return;
+      btn.textContent = 'Adding...';
+      btn.disabled = true;
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id, quantity: 1 })
+      })
+      .then(function() {
+        btn.textContent = 'Added!';
+        setTimeout(function() {
+          btn.textContent = 'Add to cart';
+          btn.disabled = false;
+        }, 1500);
+      })
+      .catch(function() {
+        btn.textContent = 'Add to cart';
+        btn.disabled = false;
+      });
+    });
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Product Grid",
+  "tag": "section",
+  "class": "section-purelane-product-grid",
+  "settings": [
+    {
+      "type": "text",
+      "id": "kicker",
+      "label": "Kicker",
+      "default": "Our Products"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Loved by 30,000 homes"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_count",
+      "label": "Number of products",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Grid",
+      "settings": {
+        "heading": "Loved by 30,000 homes"
+      }
+    }
+  ]
+}
+{% endschema %}

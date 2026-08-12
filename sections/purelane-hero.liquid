@@ -1,0 +1,955 @@
+{% liquid
+  assign anchor_id = section.settings.anchor_id | default: 'hero' | handleize
+  assign primary_link = section.settings.primary_link | default: '#shop'
+  assign secondary_link = section.settings.secondary_link | default: '#shop'
+%}
+
+<section
+  id="{{ anchor_id }}"
+  class="plhero"
+  style="
+    --pl-bg: {{ section.settings.background_color }};
+    --pl-text: {{ section.settings.text_color }};
+    --pl-muted: {{ section.settings.muted_text_color }};
+    --pl-accent: {{ section.settings.accent_color }};
+    --pl-btn-bg: {{ section.settings.primary_button_color }};
+    --pl-btn-text: {{ section.settings.primary_button_text_color }};
+    --pl-pt: {{ section.settings.padding_top }}px;
+    --pl-pb: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="plhero__inner">
+
+    {%- comment -%} COPY {%- endcomment -%}
+    <div class="plhero__copy">
+
+      {% if section.settings.eyebrow != blank %}
+        <p class="plhero__eyebrow">{{ section.settings.eyebrow }}</p>
+      {% endif %}
+
+      <h1 class="plhero__heading">
+        {% if section.settings.heading_line_1 != blank %}
+          <span>{{ section.settings.heading_line_1 }}</span>
+        {% endif %}
+        {% if section.settings.heading_line_2 != blank %}
+          <span>{{ section.settings.heading_line_2 }}</span>
+        {% endif %}
+        {% if section.settings.heading_accent != blank %}
+          <span class="plhero__heading-accent">{{ section.settings.heading_accent }}</span>
+        {% endif %}
+      </h1>
+
+      <div class="plhero__rule" aria-hidden="true">
+        <span></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21c0-6.5 3.5-11 8-12.5C20 15 16.5 20 12 21Z"/>
+          <path d="M12 21C12 14.5 8.5 10 4 8.5 4 15 7.5 20 12 21Z"/>
+        </svg>
+        <span></span>
+      </div>
+
+      {% if section.settings.description != blank %}
+        <div class="plhero__desc">{{ section.settings.description }}</div>
+      {% endif %}
+
+      <div class="plhero__actions">
+        {% if section.settings.primary_label != blank %}
+          <a class="plhero__btn plhero__btn--primary" href="{{ primary_link }}">
+            {{ section.settings.primary_label }}
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h13"/><path d="m13 6 6 6-6 6"/>
+            </svg>
+          </a>
+        {% endif %}
+        {% if section.settings.secondary_label != blank %}
+          <a class="plhero__btn plhero__btn--ghost" href="{{ secondary_link }}">
+            {{ section.settings.secondary_label }}
+          </a>
+        {% endif %}
+      </div>
+
+      {%- comment -%} MOBILE BADGES {%- endcomment -%}
+      <div class="plhero__badges plhero__badges--mobile">
+        {% if section.settings.promise_1_text != blank %}
+          <div class="plhero__badge">
+            <span class="plhero__badge-icon" aria-hidden="true">{% render 'plhero-icon', icon: section.settings.promise_1_icon %}</span>
+            <span>{{ section.settings.promise_1_text }}</span>
+          </div>
+        {% endif %}
+        {% if section.settings.promise_2_text != blank %}
+          <div class="plhero__badge">
+            <span class="plhero__badge-icon" aria-hidden="true">{% render 'plhero-icon', icon: section.settings.promise_2_icon %}</span>
+            <span>{{ section.settings.promise_2_text }}</span>
+          </div>
+        {% endif %}
+        {% if section.settings.promise_3_text != blank %}
+          <div class="plhero__badge">
+            <span class="plhero__badge-icon" aria-hidden="true">{% render 'plhero-icon', icon: section.settings.promise_3_icon %}</span>
+            <span>{{ section.settings.promise_3_text }}</span>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    {%- comment -%} STAGE {%- endcomment -%}
+    <div class="plhero__stage-wrap">
+      <div class="plhero__stage" id="plhero-stage-{{ section.id }}">
+        {% assign slide_i = 0 %}
+        {% for block in section.blocks %}
+          {% if block.type == 'stage' %}
+            {% assign has_p1 = false %}
+            {% assign has_p2 = false %}
+            {% assign has_p3 = false %}
+            {% if block.settings.product_1 != blank %}{% assign has_p1 = true %}{% endif %}
+            {% if block.settings.product_2 != blank %}{% assign has_p2 = true %}{% endif %}
+            {% if block.settings.product_3 != blank %}{% assign has_p3 = true %}{% endif %}
+            {% assign p_count = 0 %}
+            {% if has_p1 %}{% assign p_count = p_count | plus: 1 %}{% endif %}
+            {% if has_p2 %}{% assign p_count = p_count | plus: 1 %}{% endif %}
+            {% if has_p3 %}{% assign p_count = p_count | plus: 1 %}{% endif %}
+
+            <article
+              class="plhero__slide plhero__slide--{{ p_count | at_least: 0 }}{% if slide_i == 0 %} is-active{% endif %}"
+              data-slide="{{ slide_i }}"
+              aria-hidden="{% if slide_i == 0 %}false{% else %}true{% endif %}"
+              {{ block.shopify_attributes }}
+            >
+              <div class="plhero__products">
+                {% if has_p1 %}
+                  {% assign img1 = block.settings.product_1.featured_image %}
+                  <div class="plhero__product plhero__product--1">
+                    {% if img1 %}
+                      {{ img1 | image_url: width: 600 | image_tag: loading: 'eager', alt: block.settings.product_1.title, class: 'plhero__product-img' }}
+                    {% else %}
+                      <div class="plhero__product-placeholder"></div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+                {% if has_p2 %}
+                  {% assign img2 = block.settings.product_2.featured_image %}
+                  <div class="plhero__product plhero__product--2">
+                    {% if img2 %}
+                      {{ img2 | image_url: width: 600 | image_tag: loading: 'lazy', alt: block.settings.product_2.title, class: 'plhero__product-img' }}
+                    {% else %}
+                      <div class="plhero__product-placeholder"></div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+                {% if has_p3 %}
+                  {% assign img3 = block.settings.product_3.featured_image %}
+                  <div class="plhero__product plhero__product--3">
+                    {% if img3 %}
+                      {{ img3 | image_url: width: 600 | image_tag: loading: 'lazy', alt: block.settings.product_3.title, class: 'plhero__product-img' }}
+                    {% else %}
+                      <div class="plhero__product-placeholder"></div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+
+              {% assign o_price = block.settings.offer_price %}
+              {% if o_price == blank and p_count == 1 and has_p1 %}
+                {% assign o_price = block.settings.product_1.price | money %}
+              {% endif %}
+
+              {% if block.settings.offer_label != blank or o_price != blank %}
+                <div class="plhero__offer">
+                  {% if block.settings.offer_label != blank %}
+                    <span class="plhero__offer-label">{{ block.settings.offer_label }}</span>
+                  {% endif %}
+                  {% if o_price != blank %}
+                    <div class="plhero__offer-prices">
+                      <strong>{{ o_price }}</strong>
+                      {% if block.settings.offer_compare_price != blank %}
+                        <s>{{ block.settings.offer_compare_price }}</s>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  {% if block.settings.offer_savings != blank %}
+                    <span class="plhero__offer-savings">{{ block.settings.offer_savings }}</span>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </article>
+            {% assign slide_i = slide_i | plus: 1 %}
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if slide_i > 1 %}
+        <div class="plhero__dots" id="plhero-dots-{{ section.id }}">
+          {% for i in (0..slide_i) %}
+            {% if i < slide_i %}
+              <button
+                class="plhero__dot{% if i == 0 %} is-active{% endif %}"
+                data-dot="{{ i }}"
+                aria-label="Slide {{ i | plus: 1 }}"
+              ></button>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    {%- comment -%} DESKTOP BADGE RAIL {%- endcomment -%}
+    <aside class="plhero__badges plhero__badges--desktop" aria-label="Product promises">
+      {% if section.settings.promise_1_text != blank %}
+        <div class="plhero__badge">
+          <span class="plhero__badge-icon" aria-hidden="true">{% render 'plhero-icon', icon: section.settings.promise_1_icon %}</span>
+          <span>{{ section.settings.promise_1_text }}</span>
+        </div>
+      {% endif %}
+      {% if section.settings.promise_2_text != blank %}
+        <div class="plhero__badge">
+          <span class="plhero__badge-icon" aria-hidden="true">{% render 'plhero-icon', icon: section.settings.promise_2_icon %}</span>
+          <span>{{ section.settings.promise_2_text }}</span>
+        </div>
+      {% endif %}
+      {% if section.settings.promise_3_text != blank %}
+        <div class="plhero__badge">
+          <span class="plhero__badge-icon" aria-hidden="true">{% render 'plhero-icon', icon: section.settings.promise_3_icon %}</span>
+          <span>{{ section.settings.promise_3_text }}</span>
+        </div>
+      {% endif %}
+    </aside>
+
+  </div>
+</section>
+
+<style>
+
+/* SVG BOTTLE PLACEHOLDERS */
+.plhero__product-placeholder {
+  width: 160px;
+  height: 100%;
+  border-radius: 24px;
+  background: linear-gradient(160deg, rgba(107,85,184,0.85), rgba(107,85,184,0.55));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.plhero__product-placeholder::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 50px;
+  background: rgba(107,85,184,0.8);
+  border-radius: 8px 8px 0 0;
+}
+
+.plhero__product-placeholder::after {
+  content: '';
+  position: absolute;
+  top: 30%;
+  left: 15%;
+  right: 15%;
+  height: 35%;
+  background: rgba(255,255,255,0.85);
+  border-radius: 8px;
+}
+
+.plhero {
+  position: relative;
+  background: var(--pl-bg, #EAF7EE);
+  color: var(--pl-text, #17102B);
+  min-height: 100svh;
+  padding-top: var(--pl-pt, 80px);
+  padding-bottom: var(--pl-pb, 32px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* WITH */
+.plhero__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 18px;
+  display: grid;
+  grid-template-columns: 1fr minmax(320px, 520px) 96px;
+  gap: 24px;
+  align-items: center;
+  min-height: calc(100svh - var(--pl-pt, 80px) - var(--pl-pb, 32px));
+  padding-top: 60px;
+}
+
+.plhero {
+  display: flex;
+  align-items: center;
+}
+
+/* COPY */
+.plhero__eyebrow {
+  margin: 0 0 16px;
+  color: var(--pl-accent, #B8701C);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.plhero__heading {
+  margin: 0;
+  font-family: Outfit, system-ui, sans-serif;
+  font-size: clamp(3.5rem, 8vw, 6.5rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.88;
+  text-transform: uppercase;
+  color: var(--pl-text, #17102B);
+}
+
+.plhero__heading span { display: block; }
+
+.plhero__heading-accent { color: var(--pl-accent, #B8701C); }
+
+.plhero__rule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(260px, 100%);
+  margin: 22px 0 18px;
+  color: var(--pl-accent, #B8701C);
+}
+
+.plhero__rule span {
+  flex: 1;
+  height: 1px;
+  background: rgba(75, 58, 143, 0.22);
+}
+
+.plhero__rule svg { flex: 0 0 auto; }
+
+.plhero__desc {
+  max-width: 42ch;
+  color: var(--pl-muted, #241A3D);
+  font-size: clamp(0.92rem, 1.2vw, 1.05rem);
+  line-height: 1.65;
+}
+
+.plhero__desc p { margin: 0; }
+
+.plhero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.plhero__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 46px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  cursor: pointer;
+}
+
+.plhero__btn:hover { transform: translateY(-2px); }
+
+.plhero__btn:focus-visible {
+  outline: 2px solid var(--pl-accent, #B8701C);
+  outline-offset: 3px;
+}
+
+.plhero__btn--primary {
+  background: var(--pl-btn-bg, #00706A);
+  color: var(--pl-btn-text, #F4FDF6);
+  box-shadow: 0 10px 24px rgba(0, 80, 74, 0.24);
+}
+
+.plhero__btn--ghost {
+  border: 1.5px solid rgba(75, 58, 143, 0.28);
+  background: rgba(255,255,255,0.6);
+  color: var(--pl-text, #17102B);
+  backdrop-filter: blur(8px);
+}
+
+/* STAGE */
+.plhero__stage-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.plhero__stage {
+  position: relative;
+  width: 100%;
+  height: clamp(360px, 70svh, 640px);
+}
+
+.plhero__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 600ms ease, visibility 600ms ease;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.plhero__slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.plhero__products {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 0;
+}
+
+.plhero__product {
+  position: relative;
+  height: 100%;
+  flex: 0 0 auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+
+.plhero__slide.is-active .plhero__product {
+  opacity: 1;
+  transform: none;
+}
+
+.plhero__product-img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+}
+
+.plhero__product-placeholder {
+  width: 160px;
+  height: 260px;
+  border: 2px dashed rgba(75,58,143,0.2);
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--pl-muted);
+  background: rgba(255,255,255,0.4);
+}
+
+/* product sizing per slot */
+.plhero__slide--1 .plhero__product--1 { height: 100%; z-index: 3; }
+
+.plhero__slide--2 .plhero__product--1 { height: 80%; z-index: 1; margin-right: -6%; }
+.plhero__slide--2 .plhero__product--2 { height: 96%; z-index: 3; }
+
+.plhero__slide--3 .plhero__product--1 { height: 74%; z-index: 1; margin-right: -6%; }
+.plhero__slide--3 .plhero__product--2 { height: 96%; z-index: 3; }
+.plhero__slide--3 .plhero__product--3 { height: 78%; z-index: 2; margin-left: -6%; }
+
+/* OFFER PILL */
+.plhero__offer {
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  z-index: 10;
+  max-width: 180px;
+  padding: 10px 14px 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(75,58,143,0.14);
+  box-shadow: 0 14px 28px rgba(0,74,66,0.12);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 600ms ease 200ms, transform 600ms ease 200ms;
+  pointer-events: none;
+}
+
+.plhero__slide.is-active .plhero__offer {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.plhero__offer-label {
+  display: block;
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--pl-accent, #B8701C);
+}
+
+.plhero__offer-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.plhero__offer-prices strong {
+  font-family: Outfit, system-ui, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--pl-text, #17102B);
+  line-height: 1;
+}
+
+.plhero__offer-prices s {
+  font-size: 0.75rem;
+  color: var(--pl-muted, #241A3D);
+}
+
+.plhero__offer-savings {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pl-accent, #B8701C);
+  background: rgba(184,112,28,0.14);
+  border: 1px solid rgba(184,112,28,0.3);
+}
+
+/* DOTS */
+.plhero__dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.plhero__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  background: rgba(75,58,143,0.2);
+  cursor: pointer;
+  transition: width 200ms ease, background 200ms ease, border-radius 200ms ease;
+}
+
+.plhero__dot.is-active {
+  width: 20px;
+  border-radius: 999px;
+  background: var(--pl-accent, #B8701C);
+}
+
+.plhero__dot:focus-visible {
+  outline: 2px solid var(--pl-accent, #B8701C);
+  outline-offset: 3px;
+}
+
+/* BADGE RAIL */
+.plhero__badges--desktop {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.52);
+  border: 1px solid rgba(75,58,143,0.14);
+  box-shadow: 0 16px 36px rgba(0,64,55,0.1);
+  backdrop-filter: blur(16px);
+  padding: 10px 6px;
+  width: 96px;
+  align-self: center;
+}
+
+.plhero__badges--mobile {
+  display: none;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.plhero__badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 6px;
+  text-align: center;
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pl-muted, #241A3D);
+  line-height: 1.35;
+}
+
+.plhero__badges--desktop .plhero__badge + .plhero__badge {
+  border-top: 1px solid rgba(75,58,143,0.12);
+}
+
+.plhero__badge-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(75,58,143,0.16);
+  background: rgba(255,255,255,0.6);
+  color: var(--pl-accent, #B8701C);
+  flex-shrink: 0;
+}
+
+.plhero__badge-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .plhero__inner {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    min-height: auto;
+    padding-top: 40px;
+  }
+
+  .plhero__badges--desktop { display: none; }
+
+  .plhero__badges--mobile { display: grid; }
+
+  .plhero__stage-wrap {
+    position: relative;
+    overflow: hidden; /* contain the offer pill */
+  }
+
+  .plhero__offer {
+    bottom: 8px;
+    left: 4px;
+    max-width: 160px;
+  }
+}
+
+  .plhero__stage {
+    height: clamp(280px, 44svh, 400px);
+  }
+
+  .plhero__heading {
+    font-size: clamp(3rem, 15vw, 5rem);
+  }
+}
+
+@media (max-width: 420px) {
+  .plhero__btn { font-size: 0.66rem; padding: 0 16px; }
+  .plhero__badge { font-size: 0.48rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plhero__slide,
+  .plhero__product,
+  .plhero__offer { transition: none; }
+}
+</style>
+
+<script>
+(function() {
+  var stageEl = document.getElementById('plhero-stage-{{ section.id }}');
+  var dotsEl  = document.getElementById('plhero-dots-{{ section.id }}');
+  if (!stageEl) return;
+
+  var slides = Array.from(stageEl.querySelectorAll('.plhero__slide'));
+  var dots   = dotsEl ? Array.from(dotsEl.querySelectorAll('.plhero__dot')) : [];
+  if (slides.length < 2) return;
+
+  var current = 0;
+  var timer = null;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function go(n) {
+    current = (n + slides.length) % slides.length;
+    slides.forEach(function(s, i) {
+      s.classList.toggle('is-active', i === current);
+      s.setAttribute('aria-hidden', i === current ? 'false' : 'true');
+    });
+    dots.forEach(function(d, i) {
+      d.classList.toggle('is-active', i === current);
+    });
+  }
+
+  function start() {
+    if (!timer && !reduced && !document.hidden) {
+      timer = setInterval(function() { go(current + 1); }, 3800);
+    }
+  }
+
+  function stop() {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  dots.forEach(function(d, i) {
+    d.addEventListener('click', function() { stop(); go(i); start(); });
+  });
+
+  stageEl.addEventListener('mouseenter', stop);
+  stageEl.addEventListener('mouseleave', start);
+  document.addEventListener('visibilitychange', function() {
+    document.hidden ? stop() : start();
+  });
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(entries) {
+      entries[0].isIntersecting ? start() : stop();
+    }, { threshold: 0.2 }).observe(stageEl);
+  } else {
+    start();
+  }
+
+  go(0);
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Purelane hero",
+  "tag": "section",
+  "class": "section-purelane-hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "Anchor ID",
+      "default": "hero"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Plant-based homecare"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_1",
+      "label": "Heading line 1",
+      "default": "Clean"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_2",
+      "label": "Heading line 2",
+      "default": "That"
+    },
+    {
+      "type": "text",
+      "id": "heading_accent",
+      "label": "Accent heading line",
+      "default": "Lasts"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Homecare that works on the toughest grime, made from plants. Kind to your home, your family and the world outside it.</p>"
+    },
+    {
+      "type": "text",
+      "id": "primary_label",
+      "label": "Primary button label",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "primary_link",
+      "label": "Primary button link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_label",
+      "label": "Secondary button label",
+      "default": "How it works"
+    },
+    {
+      "type": "url",
+      "id": "secondary_link",
+      "label": "Secondary button link"
+    },
+    {
+      "type": "select",
+      "id": "promise_1_icon",
+      "label": "Promise 1 icon",
+      "default": "leaf",
+      "options": [
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "no_chemical", "label": "No harsh chemicals" }
+      ]
+    },
+    {
+      "type": "textarea",
+      "id": "promise_1_text",
+      "label": "Promise 1 text",
+      "default": "Plant powered"
+    },
+    {
+      "type": "select",
+      "id": "promise_2_icon",
+      "label": "Promise 2 icon",
+      "default": "shield",
+      "options": [
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "no_chemical", "label": "No harsh chemicals" }
+      ]
+    },
+    {
+      "type": "textarea",
+      "id": "promise_2_text",
+      "label": "Promise 2 text",
+      "default": "Safe for kids and pets"
+    },
+    {
+      "type": "select",
+      "id": "promise_3_icon",
+      "label": "Promise 3 icon",
+      "default": "no_chemical",
+      "options": [
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "no_chemical", "label": "No harsh chemicals" }
+      ]
+    },
+    {
+      "type": "textarea",
+      "id": "promise_3_text",
+      "label": "Promise 3 text",
+      "default": "Zero harsh chemicals"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#EAF7EE"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Heading color",
+      "default": "#17102B"
+    },
+    {
+      "type": "color",
+      "id": "muted_text_color",
+      "label": "Body text color",
+      "default": "#241A3D"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#B8701C"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_color",
+      "label": "Primary button color",
+      "default": "#00706A"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text_color",
+      "label": "Primary button text color",
+      "default": "#F4FDF6"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top spacing",
+      "min": 0,
+      "max": 240,
+      "step": 8,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom spacing",
+      "min": 0,
+      "max": 240,
+      "step": 8,
+      "unit": "px",
+      "default": 32
+    }
+  ],
+  "blocks": [
+    {
+      "type": "stage",
+      "name": "Product stage",
+      "limit": 3,
+      "settings": [
+        {
+          "type": "product",
+          "id": "product_1",
+          "label": "Product 1"
+        },
+        {
+          "type": "product",
+          "id": "product_2",
+          "label": "Product 2"
+        },
+        {
+          "type": "product",
+          "id": "product_3",
+          "label": "Product 3"
+        },
+        {
+          "type": "text",
+          "id": "offer_label",
+          "label": "Offer label",
+          "default": "Single bottle"
+        },
+        {
+          "type": "text",
+          "id": "offer_price",
+          "label": "Offer price"
+        },
+        {
+          "type": "text",
+          "id": "offer_compare_price",
+          "label": "Compare-at price"
+        },
+        {
+          "type": "text",
+          "id": "offer_savings",
+          "label": "Savings label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Purelane hero",
+      "blocks": [
+        { "type": "stage" }
+      ]
+    }
+  ]
+}
+{% endschema %}
